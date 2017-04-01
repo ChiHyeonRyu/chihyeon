@@ -1,29 +1,43 @@
 package univ.lecture.riotapi.controller;
 
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.json.JacksonJsonParser;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import univ.lecture.riotapi.model.Summoner;
 
-import javax.xml.ws.Response;
+import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 /**
  * Created by tchi on 2017. 4. 1..
  */
 @RestController
 @RequestMapping("/api/v1")
+@Log4j
 public class RiotApiController {
     @Autowired
     private RestTemplate restTemplate;
 
-    @RequestMapping(value = "/summoner", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public Summoner querySummoner(@PathVariable("name") String summonerName) {
-        final String url = "https://kr.api.pvp.net/api/lol/kr/v1.4/summoner/by-name/%ED%85%8C%ED%81%AC%201%EB%93%B1%20%EC%AB%8C%EC%83%9D%EC%9D%B4?api_key=7f69a913-a7e3-4d41-b343-6389ba6fe730";
+    @RequestMapping(value = "/summoner/{name}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public Summoner querySummoner(@PathVariable("name") String summonerName) throws UnsupportedEncodingException {
+        final String url = "https://kr.api.pvp.net/api/lol/kr/v1.4/summoner/by-name/" + summonerName + "?api_key=7f69a913-a7e3-4d41-b343-6389ba6fe730";
 
-        Summoner summoner = restTemplate.getForObject(url, Summoner.class);
+        String response = restTemplate.getForObject(url, String.class);
+        Map<String, Object> parsedMap = new JacksonJsonParser().parseMap(response);
+
+        parsedMap.forEach((key, value) -> log.info(String.format("key [%s] type [%s] value [%s]", key, value.getClass(), value)));
+
+        Map<String, Object> summonerDetail = (Map<String, Object>) parsedMap.values().toArray()[0];
+        String queriedName = (String)summonerDetail.get("name");
+        int queriedLevel = (Integer)summonerDetail.get("summonerLevel");
+        Summoner summoner = new Summoner(queriedName, queriedLevel);
+
         return summoner;
     }
 }

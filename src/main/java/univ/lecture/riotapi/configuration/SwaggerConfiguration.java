@@ -1,6 +1,7 @@
 package univ.lecture.riotapi.configuration;
 
 import com.google.common.base.Predicate;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +33,7 @@ public class SwaggerConfiguration {
     private String applicationDescription;
 
     @Value("${swagger.enabled}")
-    private String enableSwagger;
+    private boolean enableSwagger;
 
     @Bean
     public Docket swaggerSpringMvcPlugin() {
@@ -42,7 +43,7 @@ public class SwaggerConfiguration {
                 .paths(paths())
                 .build()
                 .apiInfo(apiInfo())
-                .enable(Boolean.parseBoolean(enableSwagger));
+                .enable(enableSwagger);
 
     }
 
