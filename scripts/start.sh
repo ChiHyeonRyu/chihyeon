@@ -9,4 +9,4 @@ then
 fi
 cp -f $WORKSPACE/target/*.jar /home/ec2-user/$1
 cd /home/ec2-user/$1
-sudo /usr/bin/java -jar -Dserver.port=$2 -Dapplication.name=$1 *.jar > /dev/null 2> /dev/null < /dev/null &
+sudo /usr/bin/java -jar -Dapplication.name=$1 *.jar > /dev/null 2> /dev/null < /dev/null &
